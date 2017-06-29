@@ -1,6 +1,3 @@
-#[cfg(not(feature="no_std"))]
-use std::fmt;
-
 /// A color
 #[derive(Copy, Clone)]
 #[repr(packed)]
@@ -50,12 +47,5 @@ impl Color {
 
     fn interp(start_color: u8, end_color: u8, scale: f64) -> u8 {
         ((end_color as f64 - start_color as f64) * scale + start_color as f64) as u8
-    }
-}
-
-#[cfg(not(feature="no_std"))]
-impl fmt::Debug for Color {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(f, "{:#010X}", self.data)
     }
 }
