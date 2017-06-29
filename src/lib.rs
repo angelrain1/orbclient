@@ -1,13 +1,13 @@
 #![crate_name="orbclient"]
 #![crate_type="lib"]
+#![feature(alloc)]
 #![feature(asm)]
-#![feature(collections)]
 #![feature(const_fn)]
 #![no_std]
 
 #![deny(warnings)]
 
-extern crate collections;
+extern crate alloc;
 
 pub static FONT: &'static [u8] = include_bytes!("../res/unifont.font");
 
@@ -24,6 +24,8 @@ pub mod renderer;
 #[derive(Clone, Copy, Debug)]
 pub enum WindowFlag {
     Async,
+    Back,
+    Front,
     Resizable,
     Unclosable
 }
