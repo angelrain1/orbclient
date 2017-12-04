@@ -52,25 +52,25 @@ pub trait Renderer {
         let data = self.data_mut();
 
         if x >= 0 && y >= 0 && x < w as i32 && y < h as i32 {
-            let new = color.data;
+            let new = color.0;
 
             let alpha = (new >> 24) & 0xFF;
             if alpha > 0 {
-                let old = unsafe { &mut data[y as usize * w as usize + x as usize].data };
+                let old = &mut data[y as usize * w as usize + x as usize];
                 if alpha >= 255 {
-                    *old = new;
+                    old.0 = new;
                 } else {
                     let n_r = (((new >> 16) & 0xFF) * alpha) >> 8;
                     let n_g = (((new >> 8) & 0xFF) * alpha) >> 8;
                     let n_b = ((new & 0xFF) * alpha) >> 8;
 
                     let n_alpha = 255 - alpha;
-                    let o_a = (((*old >> 24) & 0xFF) * n_alpha) >> 8;
-                    let o_r = (((*old >> 16) & 0xFF) * n_alpha) >> 8;
-                    let o_g = (((*old >> 8) & 0xFF) * n_alpha) >> 8;
-                    let o_b = ((*old & 0xFF) * n_alpha) >> 8;
+                    let o_a = (((old.0 >> 24) & 0xFF) * n_alpha) >> 8;
+                    let o_r = (((old.0 >> 16) & 0xFF) * n_alpha) >> 8;
+                    let o_g = (((old.0 >> 8) & 0xFF) * n_alpha) >> 8;
+                    let o_b = ((old.0 & 0xFF) * n_alpha) >> 8;
 
-                    *old = ((o_a << 24) | (o_r << 16) | (o_g << 8) | o_b) + ((alpha << 24) | (n_r << 16) | (n_g << 8) | n_b);
+                    old.0 = ((o_a << 24) | (o_r << 16) | (o_g << 8) | o_b) + ((alpha << 24) | (n_r << 16) | (n_g << 8) | n_b);
                 }
             }
         }
@@ -226,7 +226,7 @@ pub trait Renderer {
     fn set(&mut self, color: Color) {
         let data = self.data_mut();
         unsafe {
-            fast_set32(data.as_mut_ptr() as *mut u32, color.data, data.len());
+            fast_set32(data.as_mut_ptr() as *mut u32, color.0, data.len());
         }
     }
 
@@ -246,13 +246,13 @@ pub trait Renderer {
         let start_x = cmp::max(0, cmp::min(self_w as i32 - 1, x));
         let len = cmp::max(start_x, cmp::min(self_w as i32, x + w as i32)) - start_x;
 
-        let alpha = (color.data >> 24) & 0xFF;
+        let alpha = (color.0 >> 24) & 0xFF;
         if alpha > 0 {
             if alpha >= 255 {
                 let data = self.data_mut();
                 for y in start_y..end_y {
                     unsafe {
-                        fast_set32(data.as_mut_ptr().offset((y * self_w as i32 + start_x) as isize) as *mut u32, color.data, len as usize);
+                        fast_set32(data.as_mut_ptr().offset((y * self_w as i32 + start_x) as isize) as *mut u32, color.0, len as usize);
                     }
                 }
             } else {
